@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react'
 import Rich from './Rich.jsx'
+import { useLang } from '../i18n.jsx'
 
 export default function ProjectModal({ project, onClose }) {
+  const { t } = useLang()
   const closeRef = useRef(null)
 
   useEffect(() => {
@@ -25,7 +27,7 @@ export default function ProjectModal({ project, onClose }) {
         aria-labelledby="modal-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <button ref={closeRef} type="button" className="modal-close" onClick={onClose} aria-label="Fechar">
+        <button ref={closeRef} type="button" className="modal-close" onClick={onClose} aria-label={t.ui.close}>
           ✕
         </button>
         {project.image && (
@@ -43,7 +45,7 @@ export default function ProjectModal({ project, onClose }) {
           ))}
           {project.url && (
             <a className="modal-link" href={project.url} target="_blank" rel="noreferrer">
-              {project.linkLabel || `Visitar ${project.url.replace(/^https?:\/\//, '')}`} ↗
+              {project.linkLabel || t.ui.visit(project.url.replace(/^https?:\/\//, ''))} ↗
             </a>
           )}
         </div>

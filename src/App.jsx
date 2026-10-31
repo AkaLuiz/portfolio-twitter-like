@@ -1,13 +1,6 @@
 import { useState } from 'react'
-import {
-  profile,
-  projects,
-  skills,
-  hardSkills,
-  education,
-  experience,
-  certificates,
-} from './data/profile.js'
+import { profile, skills, hardSkills } from './data/profile.js'
+import { useLang } from './i18n.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import Section from './components/Section.jsx'
 import Rich from './components/Rich.jsx'
@@ -52,25 +45,34 @@ function CardGrid({ items, empty }) {
 }
 
 function Certificates({ items }) {
-  const [tag, setTag] = useState('Todos')
-  const tags = ['Todos', ...new Set(items.flatMap((i) => i.tags || []))]
-  const shown = tag === 'Todos' ? items : items.filter((i) => i.tags?.includes(tag))
+  const { t } = useLang()
+  const [tag, setTag] = useState(null) // null = todos
+  const tags = [null, ...new Set(items.flatMap((i) => i.tags || []))]
+  const active = tags.includes(tag) ? tag : null // idioma trocado: a tag antiga some
+  const shown = active === null ? items : items.filter((i) => i.tags?.includes(active))
 
   return (
     <>
-      <div className="chips" role="group" aria-label="Filtrar certificados">
-        {tags.map((t) => (
-          <button key={t} type="button" className="chip" aria-pressed={tag === t} onClick={() => setTag(t)}>
-            {t}
+      <div className="chips" role="group" aria-label={t.ui.filterCerts}>
+        {tags.map((tg) => (
+          <button
+            key={tg ?? 'all'}
+            type="button"
+            className="chip"
+            aria-pressed={active === tg}
+            onClick={() => setTag(tg)}
+          >
+            {tg ?? t.ui.all}
           </button>
         ))}
       </div>
-      <CardGrid items={shown} empty="Nenhum certificado nessa categoria." />
+      <CardGrid items={shown} empty={t.ui.noCerts} />
     </>
   )
 }
 
 export default function App() {
+  const { t } = useLang()
   const [openProject, setOpenProject] = useState(null)
 
   return (
@@ -81,16 +83,16 @@ export default function App() {
         <Sidebar />
         <main className="content">
           <a className="hire" href={`mailto:${profile.email}`}>
-            CONTRATAR
+            {t.ui.hire}
           </a>
 
           <section className="hero">
-            <p className="hero-greeting">{profile.hero.greeting}</p>
+            <p className="hero-greeting">{t.hero.greeting}</p>
             <h1>
-              <Typewriter text={profile.hero.title} />
+              <Typewriter text={t.hero.title} />
             </h1>
             <p className="hero-sub">
-              <Rich text={profile.hero.subtitle} />
+              <Rich text={t.hero.subtitle} />
             </p>
           </section>
 
@@ -104,17 +106,17 @@ export default function App() {
               />
               <span>{profile.name}</span>
             </div>
-            <h2>{profile.about.title}</h2>
-            {profile.about.text.map((t, i) => (
+            <h2>{t.about.title}</h2>
+            {t.about.text.map((para, i) => (
               <p key={i}>
-                <Rich text={t} />
+                <Rich text={para} />
               </p>
             ))}
           </section>
 
-          <Section id="projetos" title="PROJETOS">
+          <Section id="projetos" title={t.sections.projetos}>
             <div className="projects">
-              {projects.map((p, i) => {
+              {t.projects.map((p, i) => {
                 // Com descrição: abre o modal. Só com link: abre o site. Sem nada: card parado.
                 const Card = p.description ? 'button' : p.url ? 'a' : 'div'
                 const props = p.description
@@ -139,31 +141,31 @@ export default function App() {
             </div>
           </Section>
 
-          <Section id="habilidades" title="HABILIDADES">
+          <Section id="habilidades" title={t.sections.habilidades}>
             <div className="skills">
               {skills.map((s) => (
                 <img key={s.name} src={s.icon} alt={s.name} title={s.name} />
               ))}
             </div>
             <div className="hard">
-              <strong>Hard Skills</strong>
+              <strong>{t.ui.hardSkills}</strong>
               <p>{hardSkills}</p>
             </div>
           </Section>
 
-          <Section id="educacao" title="EDUCAÇÃO">
-            <CardGrid items={education} empty="Em breve." />
+          <Section id="educacao" title={t.sections.educacao}>
+            <CardGrid items={t.education} empty={t.ui.soon} />
           </Section>
 
-          <Section id="experiencia" title="EXPERIÊNCIA">
-            <Timeline items={experience} empty="Em breve." />
+          <Section id="experiencia" title={t.sections.experiencia}>
+            <Timeline items={t.experience} empty={t.ui.soon} />
           </Section>
 
-          <Section id="certificados" title="CERTIFICADOS">
-            <Certificates items={certificates} />
+          <Section id="certificados" title={t.sections.certificados}>
+            <Certificates items={t.certificates} />
           </Section>
 
-          <Section id="contato" title="CONTATO">
+          <Section id="contato" title={t.sections.contato}>
             <p className="empty">
               <a href={`mailto:${profile.email}`}>{profile.email}</a>
             </p>

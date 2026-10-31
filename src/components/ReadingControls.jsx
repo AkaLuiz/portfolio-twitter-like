@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { LANGS, useLang } from '../i18n.jsx'
 
 const SIZE_KEY = 'font-scale'
 const FONT_KEY = 'font-family'
@@ -7,12 +8,7 @@ const MIN = 85
 const MAX = 135
 const DEFAULT_SIZE = 100
 
-const FONTS = [
-  { id: 'padrao', label: 'Padrão' },
-  { id: 'serif', label: 'Serifada' },
-  { id: 'mono', label: 'Código' },
-  { id: 'legivel', label: 'Alta legibilidade' },
-]
+const FONT_IDS = ['padrao', 'serif', 'mono', 'legivel']
 
 function read(key) {
   try {
@@ -31,13 +27,15 @@ function write(key, value) {
 }
 
 export default function ReadingControls() {
+  const { lang, setLang, t } = useLang()
+  const ui = t.ui
   const [scale, setScale] = useState(() => {
     const v = Number(read(SIZE_KEY))
     return v >= MIN && v <= MAX ? v : DEFAULT_SIZE
   })
   const [font, setFont] = useState(() => {
     const v = read(FONT_KEY)
-    return FONTS.some((f) => f.id === v) ? v : 'padrao'
+    return FONT_IDS.includes(v) ? v : 'padrao'
   })
 
   const [theme, setTheme] = useState(() => (read(THEME_KEY) === 'light' ? 'light' : 'dark'))
@@ -59,19 +57,33 @@ export default function ReadingControls() {
 
   return (
     <div className="font-control">
-      <div className="font-picker" role="radiogroup" aria-label="Fonte do site">
-        {FONTS.map((f) => (
+      <div className="font-picker" role="radiogroup" aria-label={ui.readingFont}>
+        {FONT_IDS.map((id) => (
           <button
-            key={f.id}
+            key={id}
             type="button"
             role="radio"
-            aria-checked={font === f.id}
-            aria-label={f.label}
-            title={f.label}
-            className={`font-opt fa-${f.id}${font === f.id ? ' active' : ''}`}
-            onClick={() => setFont(f.id)}
+            aria-checked={font === id}
+            aria-label={ui.fonts[id]}
+            title={ui.fonts[id]}
+            className={`font-opt fa-${id}${font === id ? ' active' : ''}`}
+            onClick={() => setFont(id)}
           >
             A
+          </button>
+        ))}
+      </div>
+      <div className="font-picker lang-picker" role="radiogroup" aria-label={ui.language}>
+        {LANGS.map((l) => (
+          <button
+            key={l}
+            type="button"
+            role="radio"
+            aria-checked={lang === l}
+            className={`font-opt lang-opt${lang === l ? ' active' : ''}`}
+            onClick={() => setLang(l)}
+          >
+            {l.toUpperCase()}
           </button>
         ))}
       </div>
@@ -80,12 +92,12 @@ export default function ReadingControls() {
         type="button"
         className="theme-btn"
         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
-        title={theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
+        aria-label={theme === 'dark' ? ui.lightOn : ui.darkOn}
+        title={theme === 'dark' ? ui.lightTitle : ui.darkTitle}
       >
         {theme === 'dark' ? '☀️' : '🌙'}
       </button>
-      <button type="button" onClick={() => setScale(DEFAULT_SIZE)} aria-label="Restaurar tamanho padrão">
+      <button type="button" onClick={() => setScale(DEFAULT_SIZE)} aria-label={ui.resetSize}>
         <span className="fc-small">A</span>
       </button>
       <input
@@ -95,7 +107,7 @@ export default function ReadingControls() {
         step={5}
         value={scale}
         onChange={(e) => setScale(Number(e.target.value))}
-        aria-label="Tamanho da fonte"
+        aria-label={ui.fontSize}
       />
       <span className="fc-big" aria-hidden="true">
         A
