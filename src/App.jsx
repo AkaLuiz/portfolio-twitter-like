@@ -8,6 +8,7 @@ import ReadingControls from './components/ReadingControls.jsx'
 import Typewriter from './components/Typewriter.jsx'
 import TechMarquee from './components/TechMarquee.jsx'
 import ProjectModal from './components/ProjectModal.jsx'
+import BootScreen, { shouldBoot } from './components/BootScreen.jsx'
 
 function Timeline({ items, empty }) {
   if (items.length === 0) return <p className="empty">{empty}</p>
@@ -72,6 +73,18 @@ function Certificates({ items }) {
 }
 
 export default function App() {
+  const [booting, setBooting] = useState(shouldBoot) // overlay de boot na tela
+  const [ready, setReady] = useState(!booting) // site montado (o Typewriter só começa aqui)
+
+  return (
+    <>
+      {ready && <Site />}
+      {booting && <BootScreen onReady={() => setReady(true)} onDone={() => setBooting(false)} />}
+    </>
+  )
+}
+
+function Site() {
   const { t } = useLang()
   const [openProject, setOpenProject] = useState(null)
 
